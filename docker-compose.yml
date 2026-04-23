@@ -1,4 +1,4 @@
-﻿version: "3.8"
+﻿# version: "3.8"
 services:
   app:
     image: node:20-alpine
@@ -12,6 +12,13 @@ services:
     volumes:
       - ./:/app
       - node_modules:/app/node_modules
-    command: sh -c "npm ci --silent && npm run dev"
+    networks:
+      - aivas_shared
+    command: sh -c 'PKG_HASH="$$(md5sum /app/package-lock.json | cut -d" " -f1)"; if [ ! -f /app/node_modules/.lockhash ] || [ "$$(cat /app/node_modules/.lockhash 2>/dev/null)" != "$$PKG_HASH" ] || [ -z "$$(ls -A /app/node_modules 2>/dev/null)" ]; then npm ci --silent && echo "$$PKG_HASH" > /app/node_modules/.lockhash; fi; npm run dev'
 volumes:
   node_modules:
+
+networks:
+  aivas_shared:
+    external: true
+    name: aivas_shared
