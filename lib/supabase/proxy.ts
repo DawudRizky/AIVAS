@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import jwt from 'jsonwebtoken';
 import { hasEnvVars } from "../utils";
 
 export async function updateSession(request: NextRequest) {
@@ -45,13 +46,28 @@ export async function updateSession(request: NextRequest) {
   // IMPORTANT: If you remove getClaims() and you use server-side rendering
   // with the Supabase client, your users may be randomly logged out.
   const { data } = await supabase.auth.getClaims();
-  const user = data?.claims;
+  let user = data?.claims;
+
+  // Fallback: if Supabase claims are not present, try our custom HttpOnly JWT cookie
+  if (!user) {
+    try {
+      const tokenCookie = request.cookies.get('token')?.value;
+      if (tokenCookie && process.env.JWT_SECRET) {
+        // Verify our JWT and use its payload as the user claims
+        const decoded = jwt.verify(tokenCookie, process.env.JWT_SECRET);
+        user = decoded as any;
+      }
+    } catch (e) {
+      // ignore invalid token fallback — user remains falsy
+    }
+  }
 
   if (
     request.nextUrl.pathname !== "/" &&
     !user &&
     !request.nextUrl.pathname.startsWith("/login") &&
-    !request.nextUrl.pathname.startsWith("/auth")
+    !request.nextUrl.pathname.startsWith("/auth") &&
+    !request.nextUrl.pathname.startsWith("/api")
   ) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone();
