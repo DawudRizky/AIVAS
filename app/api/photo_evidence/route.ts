@@ -1,9 +1,11 @@
 // app/api/photo-evidence/route.ts
 
 import { NextResponse } from 'next/server'
-import { supabase } from '../../../lib/supabase'
+// import { supabase } from '../../../lib/supabase'
+import { createClient } from '@/lib/supabase/server'
 
 export async function GET() {
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('photo_evidence')
     .select(`
@@ -27,7 +29,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   const body = await req.json()
-
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('photo_evidence')
     .insert([

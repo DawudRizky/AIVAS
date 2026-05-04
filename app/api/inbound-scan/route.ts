@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '../../../lib/supabase'
+// import { supabase } from '../../../lib/supabase'
+import { createClient } from '@/lib/supabase/server'
 
 export async function GET() {
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('inbound_scan')
     .select(`
@@ -32,6 +34,7 @@ export async function POST(req: Request) {
   const status =
     body.qty_actual > 0 ? 'received' : 'pending'
 
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('inbound_scan')
     .insert([
