@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '../../../lib/supabase'
+// import { supabase } from '../../../lib/supabase'
+import { createClient } from '@/lib/supabase/server'
 import { v4 as uuidv4 } from 'uuid'
 
 export async function GET() {
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('qr_code')
     .select(`
@@ -37,6 +39,7 @@ export async function POST(req: Request) {
 
   const generatedCode = `QR-${uuidv4()}`
 
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('qr_code')
     .insert([

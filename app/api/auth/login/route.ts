@@ -7,9 +7,9 @@ import jwt from 'jsonwebtoken'
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    console.log('LOGIN REQ BODY:', { body }) // temp log to check request body
+    // console.log('LOGIN REQ BODY:', { body }) // temp log to check request body
     const { email, password } = body
-    console.log('LOOKUP EMAIL:', email) // temp log to check email being looked up
+    // console.log('LOOKUP EMAIL:', email) // temp log to check email being looked up
     if (!email || !password) {
       return NextResponse.json(
         {
@@ -22,12 +22,12 @@ export async function POST(req: Request) {
     }
 
     const supabase = await createClient()
-    const debugRes = await supabase
-      .from('users')
-      .select('id,email,password_hash')
-      .eq('email', email)
-      .maybeSingle();
-    console.log('SUPABASE DEBUG:', JSON.stringify(debugRes, null, 2));
+    // const debugRes = await supabase
+    //   .from('users')
+    //   .select('id,email,password_hash')
+    //   .eq('email', email)
+    //   .maybeSingle();
+    // console.log('SUPABASE DEBUG:', JSON.stringify(debugRes, null, 2));
     // console.log('SUPABASE_URL env:', process.env.NEXT_PUBLIC_SUPABASE_URL);
 
     const { data: user, error } = await supabase
